@@ -7,9 +7,35 @@ block tab
   include tab.pug
 
 block content
-  div(class="container")
-    div(class="starter-template")
-      h1 Bootstrap starter template
-      p(class="lead") Use this document as a way to quickly start any new project.<br> All you get is this text and a mostly barebones HTML document.
-      form(class="form-signin" action="/logout" method="post")
-        button(class="btn btn-lg btn-primary btn-block" type="submit") Log Out
+  div(class="container" )
+
+    ul
+      each region in regionlist
+        li #{region.type}
+
+    div(id="map")
+
+    form(class="form-signin" action="/logout" method="post")
+      button(class="btn btn-lg btn-primary btn-block" type="submit") Log Out
+
+block pageScript
+    script.
+        var filter = "win16|win32|win64|mac|macintel";
+        var mapLevel = 9;
+        if (navigator.platform) {
+            if (filter.indexOf(navigator.platform.toLowerCase()) < 0) {
+                mapLevel = 10;
+            }
+        }
+        console.log(mapLevel);
+
+        var container = document.getElementById('map');
+        var options = {
+            center: new daum.maps.LatLng(33.3823105, 126.5332869),
+            level: mapLevel
+
+        };
+        var map = new daum.maps.Map(container, options);
+
+
+

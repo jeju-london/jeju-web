@@ -1,15 +1,17 @@
 var express = require('express');
 var passport = require('passport');
+var csvtojsonjs = require('./csvtojson');
 var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  console.log(req.isAuthenticated());
-  var page = 'login';
+  //var page = 'login';
+  var page = 'index';
   if(req.isAuthenticated()){
       page = 'index';
   }
-  res.render(page, { title: 'Jeju' });
+  console.log('index:', csvtojsonjs.region);
+  res.render(page, { title: 'Jeju', regionlist: csvtojsonjs.region });
 });
 
 router.post('/login', passport.authenticate('local', {
@@ -24,3 +26,4 @@ router.post('/logout', function (req, res) {
 });
 
 module.exports = router;
+

@@ -11,3 +11,20 @@
 #map {
     height:100%;
 }
+.btn-group, .btn-group-vertical {
+    position: absolute;
+    z-index: 1000;
+    top: 70px;
+    left: 10px;
+}
+
+.btn-depth1 {
+    width:133px;
+}
+
+.btn-emd {
+    position: absolute;
+    z-index: 1000;
+    top: 70px;
+    left: 150px;
+}

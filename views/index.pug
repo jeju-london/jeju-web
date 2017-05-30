@@ -9,14 +9,49 @@ block tab
 block content
   div(class="container" )
 
-    ul
-      each region in regionlist
-        li #{region.type}
+    //ul
+    //  each region in regionlist
+    //    li #{region.type}
+
+    div(class="btn-group")
+        button(type="button" class="btn btn-primary btn-depth1 dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") 지리별
+            span(class="caret")
+        ul(class="dropdown-menu")
+            li
+                a(href="#") 지리별
+            li
+                a(href="#") 북부
+            li
+                a(href="#") 남부
+            li
+                a(href="#") 동부
+            li
+                a(href="#") 서부
+            li(role="separator" class="divider")
+            li
+                a(href="#") 특성별
+            li
+                a(href="#") 중국인 주요관광지
+            li
+                a(href="#") 내국인 주요관광지
+            li
+                a(href="#") 상업지
+            li
+                a(href="#") 제주시 구도심
+            li
+                a(href="#") 서귀포시 구도심
+
+    div(class="btn-group btn-emd")
+        button(type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") 읍면동
+            span(class="caret")
+        ul(class="dropdown-menu")
+            li
+                a(href="#") 서호동
 
     div(id="map")
 
-    form(class="form-signin" action="/logout" method="post")
-      button(class="btn btn-lg btn-primary btn-block" type="submit") Log Out
+    //form(class="form-signin" action="/logout" method="post")
+    //  button(class="btn btn-lg btn-primary btn-block" type="submit") Log Out
 
 block pageScript
     script.
@@ -32,7 +67,10 @@ block pageScript
         var container = document.getElementById('map');
         var options = {
             center: new daum.maps.LatLng(33.3823105, 126.5332869),
-            level: mapLevel
+            level: mapLevel,
+            draggable: true,
+            scrollwheel: true,
+            tileAnimation: true
 
         };
         var map = new daum.maps.Map(container, options);

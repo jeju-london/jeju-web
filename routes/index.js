@@ -10,7 +10,7 @@ router.get('/', function(req, res, next) {
   if(req.isAuthenticated()){
       page = 'index';
   }
-  console.log('index:', csvtojsonjs.region);
+  console.log('region:', csvtojsonjs.region);
   res.render(page, { title: 'Jeju', regionlist: csvtojsonjs.region });
 });
 

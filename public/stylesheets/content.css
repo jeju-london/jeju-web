@@ -28,3 +28,82 @@
     top: 70px;
     left: 150px;
 }
+
+.btn-test {
+    position: absolute;
+    z-index: 1000;
+    top: 70px;
+    left: 230px;
+}
+
+.bs-glyphicons li {
+    float: left;
+    width: 25%;
+    height: 115px;
+    padding: 10px;
+    font-size: 10px;
+    line-height: 1.4;
+    text-align: center;
+    background-color: #f9f9f9;
+    border: 1px solid #fff;
+}
+
+.bs-glyphicons .glyphicon {
+    margin-top: 5px;
+    margin-bottom: 10px;
+    font-size: 30px;
+}
+
+.glyphicon {
+    position: relative;
+    top: 1px;
+    display: inline-block;
+    font-family: 'Glyphicons Halflings';
+    font-style: normal;
+    font-weight: 400;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+.maker-label {
+    margin-left: auto;
+    margin-right: auto;
+    background: black;
+    color: white;
+    position: relative;
+    top: -5px;
+}
+
+.maker-label .center {
+    display: block;
+    text-align: center;
+}
+
+.btn-default {
+    color: #333;
+    background-color: #fff;
+    border-color: #ccc;
+}
+
+.btn-north {
+    background-image: -webkit-linear-gradient(top,#f9d400 0,#e5d204 100%);
+    background-image: -o-linear-gradient(top,#f9d400 0,#e5d204 100%);
+    background-image: -webkit-gradient(linear,left top,left bottom,from(#f9d400),to(#e5d204));
+    background-image: linear-gradient(to bottom,#f9d400 0,#e5d204 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f9d400', endColorstr='#e5d204', GradientType=0);
+    filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
+    background-repeat: repeat-x;
+    border-color: #e38d13;
+}
+
+@media (min-width: 768px) {
+    .bs-glyphicons {
+        margin-right: 0;
+        margin-left: 0;
+    }
+    .bs-glyphicons li {
+        width: 12.5%;
+        font-size: 12px;
+    }
+}

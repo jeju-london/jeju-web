@@ -13,47 +13,70 @@ block content
     //  each region in regionlist
     //    li #{region.type}
 
-    div(class="btn-group")
+    div(class="btn-group wrap-depth1")
         button(type="button" class="btn btn-primary btn-depth1 dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") 지리별
             span(class="caret")
         ul(class="dropdown-menu")
-            li
-                a(href="#") 지리별
-            li
+            li(data-centerCoord={x:33.3823105, y:126.5332869, level:9})
+                a(href="#")
+                    strong 지리별
+                    span(class="glyphicon glyphicon-ok" aria-hidden="true")
+
+            li(data-region='north' data-centerCoord={x: 33.457543138530234, y: 126.52121318906023, level:8})
                 a(href="#") 북부
-            li
+            li(data-region='south' data-centerCoord={x: 33.31297232505243, y: 126.51478872617335, level:8})
                 a(href="#") 남부
-            li
+            li(data-region='east' data-centerCoord={x: 33.46986571255288, y: 126.81203766523701, level:8})
                 a(href="#") 동부
-            li
+            li(data-region='west' data-centerCoord={x: 33.31711594804748, y: 126.24637996878465, level:8})
                 a(href="#") 서부
+
             li(role="separator" class="divider")
+
             li
                 a(href="#") 특성별
-            li
+            li(data-region='chinese')
                 a(href="#") 중국인 주요관광지
-            li
+            li(data-region='korean')
                 a(href="#") 내국인 주요관광지
-            li
+            li(data-region='businese')
                 a(href="#") 상업지
-            li
+            li(data-region='jejusi')
                 a(href="#") 제주시 구도심
-            li
+            li(data-region='sgpsi')
                 a(href="#") 서귀포시 구도심
 
-    div(class="btn-group btn-emd")
+    div(class="btn-group btn-emd hide")
         button(type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") 읍면동
             span(class="caret")
         ul(class="dropdown-menu")
             li
                 a(href="#") 서호동
 
+    //div(class="btn-group btn-test")
+    //    button(type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg") open layer
+
+    div(class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel")
+        div(class="modal-dialog modal-lg" role="document")
+            div(class="modal-content")
+                div(class="modal-header")
+                    button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+                        span(aria-hidden="true") &times;
+                    h4(class="modal-title") 제주 북부
+
+                div(class="modal-body")
+                    p 그래프 영역
+
+    div(id='result')
     div(id="map")
 
     //form(class="form-signin" action="/logout" method="post")
     //  button(class="btn btn-lg btn-primary btn-block" type="submit") Log Out
 
 block pageScript
+    include templates/jstemplates.js
+    include templates/mapCoord.js
+
     script.
         var filter = "win16|win32|win64|mac|macintel";
         var mapLevel = 9;
@@ -62,7 +85,6 @@ block pageScript
                 mapLevel = 10;
             }
         }
-        console.log(mapLevel);
 
         var container = document.getElementById('map');
         var options = {
@@ -75,5 +97,273 @@ block pageScript
         };
         var map = new daum.maps.Map(container, options);
 
+        var $wrapDepth1 = $('.wrap-depth1');
+        var $wrapDepth2 = $('.btn-emd');
+        var $modalContent = $('.modal .modal-dialog');
+
+        var emdList = {
+            north: ['건입동','내도동','노형동','도남동','도두동','도련1동','도련2동','도평동','봉개동','삼도1동','삼도2동','삼양동','아라동','애월읍','연동','영평동','오등동','오라동','외도동','용강동','용담1동','용담2동','용담3동','이도1동','이도2동','이호동','일도1동','일도2동','조천읍','해안동','화북동','회천동'],
+            south: ['강정동','남원읍','대륜동','대천동','대포동','도순동','동홍동','마라도','법환동','보목동','상예동','상효동','색달동','서귀동','서호동','서홍동','송산동','신효동','안덕면','영남동','영천동','예래동','월평동','이어도','정방동','중문동','중앙동','천지동','토평동','하예동','하원동','하효동','호근동','회수동','효돈동'],
+            east: ['구좌읍','성산읍','표선면','우도면'],
+            west: ['대정읍','한경면','한림읍'],
+            chinese: ['이호동','연동','아라동','예래동'],
+            korean: ['용담2동','중문동','성산읍','안덕면','우도면'],
+            businese: ['삼도1동','이도2동','일도2동','외도동','화북동','동홍동'],
+            jejusi: ['일도1동', '용담1동', '이도1동', '삼도2동', '건입동'],
+            sgpsi: ['송산동','천지동','정방동','중앙동']
+        };
+
+        function initEventDepth1List() {
+
+            $wrapDepth1.find('ul.dropdown-menu li').on('click', function () {
+
+                var regionName = $(this).text().trim();
+                $wrapDepth1.find('ul.dropdown-menu li').each(function () {
+                    $(this).html('<a href="#">'+$(this).text()+'</a>');
+                });
+
+                $wrapDepth1.find('button.btn-depth1').html($(this).text()+'<span class="caret"></span>');
+
+                var data = {region: $(this).text()};
+                var depth1LiTempl = $.templates("#depth1Li");
+                var html = depth1LiTempl.render(data);
+                $(this).html(html);
+
+                if($(this).text().trim() != '지리별' && $(this).text().trim() != '특성별'){
+                    $wrapDepth2.removeClass('hide');
+
+                    var emdList = ( new Function('return ' + 'emdList.'+$(this).data('region')) )();
+
+                    var html = '';
+                    for(var idx in emdList){
+                        html = html+"<li><a href='#'>"+ emdList[idx] +"</a></li>";
+                    }
+                    $wrapDepth2.find('ul.dropdown-menu').html(html);
+
+                }else{
+                    $wrapDepth2.addClass('hide');
+                }
+
+                var centerCoord = $(this).data('centercoord');
+                panTo(centerCoord.x, centerCoord.y, centerCoord.level);
+
+            });
+        }
+
+        function initEvent() {
+            initEventDepth1List();
+        }
 
 
+        var color = {
+            east: {
+                strokeColor: '#39DE2A',
+                fillColor: '#A2FF99'
+            },
+            west: {
+                strokeColor: '#c46b05',
+                fillColor: '#f98500'
+            },
+            south: {
+                strokeColor: '#FF8AEF',
+                fillColor: '#FF8AEF'
+            },
+            north: {
+                strokeColor: '#eded04',
+                fillColor: '#ffff00'
+            }
+        };
+
+        function printRegionPolygon() {
+            getPolygonPath(EAST, color.east);
+            getPolygonPath(WEST, color.west);
+            getPolygonPath(SOUTH, color.south);
+            getPolygonPath(NORTH, color.north);
+        }
+
+        function getPolygonPath(regionCoords, colorObj) {
+            var polygonPath = [];
+            for (var idx in regionCoords) {
+                for (var dataIdx in regionCoords[idx].exterior) {
+                    var coordObj = regionCoords[idx].exterior[dataIdx];
+                    polygonPath.push(new daum.maps.LatLng(coordObj.y, coordObj.x));
+                }
+                setPolygon(polygonPath, colorObj);
+                polygonPath = [];
+            }
+        }
+
+        function setPolygon(polygonPath, colorObj) {
+            // 지도에 표시할 다각형을 생성합니다
+            var polygon = new daum.maps.Polygon({
+                path: polygonPath, // 그려질 다각형의 좌표 배열입니다
+                strokeWeight: 1, // 선의 두께입니다
+                strokeColor: colorObj.strokeColor, // 선의 색깔입니다
+                strokeOpacity: 0.2, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
+                strokeStyle: 'solid', // 선의 스타일입니다
+                fillColor: colorObj.fillColor, // 채우기 색깔입니다
+                fillOpacity: 0.2 // 채우기 불투명도 입니다
+            });
+
+            // 지도에 다각형을 표시합니다
+            polygon.setMap(map);
+        }
+
+        var northData = {
+            fontColor: '#f9d400',
+            name: '북부',
+            btnClass: 'btn-default',
+            centerCoord: {
+                x: 33.457543138530234,
+                y: 126.52121318906023
+            }
+        };
+        var southData = {
+            fontColor: '#f901e8',
+            name: '남부',
+            btnClass: 'btn-default',
+            centerCoord: {
+                x: 33.31297232505243,
+                y: 126.51478872617335
+            }
+        };
+        var eastData = {
+            fontColor: '#00c451',
+            name: '동부',
+            btnClass: 'btn-default',
+            centerCoord: {
+                x: 33.46986571255288,
+                y: 126.81203766523701
+            }
+        };
+        var westhData = {
+            fontColor: '#f26a02',
+            name: '서부',
+            btnClass: 'btn-default',
+            centerCoord: {
+                x: 33.31711594804748,
+                y: 126.24637996878465
+            }
+        };
+
+        function printCustomOverlay() {
+            var regionMarkerTempl = $.templates("#regionMarker");
+            var northContent = regionMarkerTempl.render(northData);
+            var southContent = regionMarkerTempl.render(southData);
+            var eastContent = regionMarkerTempl.render(eastData);
+            var westContent = regionMarkerTempl.render(westhData);
+
+            var northPosition = new daum.maps.LatLng(33.466480653936, 126.5251800177313);
+            var southPosition = new daum.maps.LatLng(33.29040997575155, 126.50694775763147);
+            var eastPosition = new daum.maps.LatLng(33.443531160648355, 126.78002412238946);
+            var westPosition = new daum.maps.LatLng(33.31341656714869, 126.25940514997819);
+
+            setRegionCustomOverlay(northContent, northPosition);
+            setRegionCustomOverlay(southContent, southPosition);
+            setRegionCustomOverlay(eastContent, eastPosition);
+            setRegionCustomOverlay(westContent, westPosition);
+        }
+
+
+        var customOverlays = [];
+        function setRegionCustomOverlay(content, position) {
+            // 커스텀 오버레이를 생성합니다
+            var customOverlay = new daum.maps.CustomOverlay({
+                position: position,
+                content: content,
+                xAnchor: 0.3,
+                yAnchor: 0.91
+            });
+
+            // 커스텀 오버레이를 지도에 표시합니다
+            customOverlay.setMap(map);
+            customOverlays.push(customOverlay);
+
+            $('.btn-region').on('click', function () {
+
+                var data = {
+                    region: $(this).data('region')
+                };
+                var graphModalTempl = $.templates("#graphModal");
+                var graphContent = graphModalTempl.render(data);
+                $modalContent.html(graphContent);
+            });
+
+            $('.wrap-marker').on('click', function () {
+                var regionName = $(this).data('region');
+                var coordX = $(this).data('xcoord');
+                var coordY = $(this).data('ycoord');
+                panTo(coordX, coordY, 8);
+
+                $wrapDepth1.find('ul.dropdown-menu li').each(function () {
+                   if($(this).text().indexOf(regionName) != -1){
+                       $(this).trigger('click');
+                       console.log($(this));
+                   }
+                });
+
+                for (var i = 0; i < customOverlays.length; i++) {
+                    //customOverlays[i].setMap(null);
+                }
+            });
+        }
+
+        function panTo(x, y, level) {
+            var mapLevel = level || 8;
+            var moveLatLon = new daum.maps.LatLng(x, y);
+            map.setLevel(mapLevel);
+            map.panTo(moveLatLon);
+        }
+
+        daum.maps.event.addListener(map, 'center_changed', function () {
+
+            // 지도의  레벨을 얻어옵니다
+            var level = map.getLevel();
+
+            // 지도의 중심좌표를 얻어옵니다
+            var latlng = map.getCenter();
+
+            var message = '<p>지도 레벨은 ' + level + ' 이고</p>';
+            message += '<p>중심 좌표는 위도 ' + latlng.getLat() + ', 경도 ' + latlng.getLng() + '입니다</p>';
+
+            console.log(message);
+
+        });
+
+
+        function getjsonp() {
+            var polygonPath = [];
+            var codeShapeApi = 'http://rapi.daum.net/regioncode/getBcodeShape.JSON?outputCoordSystem=WGS84&service=map.daum.net&callback=jeju&code=';
+
+            $.ajax({
+                url: codeShapeApi + regionCode,
+                dataType: 'jsonp',
+                jsonpCallback: "jeju",
+                success: function (data) {
+                    console.log('성공 - ', data);
+                    for (var idx in data) {
+                        if (idx == 1) {
+                            break;
+                        }
+                        for (var dataIdx in data[idx].exterior) {
+                            var coordObj = data[idx].exterior[dataIdx];
+                            polygonPath.push(new daum.maps.LatLng(coordObj.y, coordObj.x));
+                        }
+
+                    }
+                },
+                error: function (xhr) {
+                    console.log('실패 - ', xhr);
+                }
+            }).done(function () {
+                setPolygon(polygonPath);
+            });
+        }
+
+        function init() {
+            initEvent();
+            printRegionPolygon();
+            printCustomOverlay();
+        }
+
+        init();

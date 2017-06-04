@@ -54,6 +54,12 @@
     font-size: 30px;
 }
 
+.bs-glyphicons .emd-marker {
+    margin-top: 5px;
+    margin-bottom: 10px;
+    font-size: 27px;
+}
+
 .glyphicon {
     position: relative;
     top: 1px;
@@ -64,6 +70,11 @@
     line-height: 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+.emd-label {
+    font-size: 12px;
+    padding: 0px 1px;
 }
 
 .maker-label {

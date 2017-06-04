@@ -47,14 +47,14 @@ block content
                 a(href="#") 서귀포시 구도심
 
     div(class="btn-group btn-emd hide")
-        button(type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") 읍면동
+        button(type="button" class="btn btn-primary dropdown-toggle btn-depth2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") 읍면동
             span(class="caret")
         ul(class="dropdown-menu")
             li
                 a(href="#") 서호동
 
-    //div(class="btn-group btn-test")
-    //    button(type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg") open layer
+    div(class="btn-group btn-test hide")
+        button(type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg") open layer
 
     div(class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel")
         div(class="modal-dialog modal-lg" role="document")
@@ -76,6 +76,7 @@ block content
 block pageScript
     include templates/jstemplates.js
     include templates/mapCoord.js
+    include templates/emdList.js
 
     script.
         var filter = "win16|win32|win64|mac|macintel";
@@ -101,18 +102,6 @@ block pageScript
         var $wrapDepth2 = $('.btn-emd');
         var $modalContent = $('.modal .modal-dialog');
 
-        var emdList = {
-            north: ['건입동','내도동','노형동','도남동','도두동','도련1동','도련2동','도평동','봉개동','삼도1동','삼도2동','삼양동','아라동','애월읍','연동','영평동','오등동','오라동','외도동','용강동','용담1동','용담2동','용담3동','이도1동','이도2동','이호동','일도1동','일도2동','조천읍','해안동','화북동','회천동'],
-            south: ['강정동','남원읍','대륜동','대천동','대포동','도순동','동홍동','마라도','법환동','보목동','상예동','상효동','색달동','서귀동','서호동','서홍동','송산동','신효동','안덕면','영남동','영천동','예래동','월평동','이어도','정방동','중문동','중앙동','천지동','토평동','하예동','하원동','하효동','호근동','회수동','효돈동'],
-            east: ['구좌읍','성산읍','표선면','우도면'],
-            west: ['대정읍','한경면','한림읍'],
-            chinese: ['이호동','연동','아라동','예래동'],
-            korean: ['용담2동','중문동','성산읍','안덕면','우도면'],
-            businese: ['삼도1동','이도2동','일도2동','외도동','화북동','동홍동'],
-            jejusi: ['일도1동', '용담1동', '이도1동', '삼도2동', '건입동'],
-            sgpsi: ['송산동','천지동','정방동','중앙동']
-        };
-
         function initEventDepth1List() {
 
             $wrapDepth1.find('ul.dropdown-menu li').on('click', function () {
@@ -124,6 +113,7 @@ block pageScript
 
                 $wrapDepth1.find('button.btn-depth1').html($(this).text()+'<span class="caret"></span>');
 
+                var regionNameEng = $(this).data('region');
                 var data = {region: $(this).text()};
                 var depth1LiTempl = $.templates("#depth1Li");
                 var html = depth1LiTempl.render(data);
@@ -133,20 +123,48 @@ block pageScript
                     $wrapDepth2.removeClass('hide');
 
                     var emdList = ( new Function('return ' + 'emdList.'+$(this).data('region')) )();
+                    var emdCoordList = ( new Function('return ' + 'emdCoordList.'+$(this).data('region')) )();
 
                     var html = '';
                     for(var idx in emdList){
-                        html = html+"<li><a href='#'>"+ emdList[idx] +"</a></li>";
+                        html = html+"<li data-centercoord='{\"x\":"+emdCoordList[0].centerCoord.y+",\"y\":"+emdCoordList[0].centerCoord.x+",\"level\":5}'><a href='#'>"+ emdList[idx] +"</a></li>";
                     }
                     $wrapDepth2.find('ul.dropdown-menu').html(html);
-
+                    initEventDepth2List();
+                    console.log(0);
+                    setEmdCustomOverlay(regionNameEng);
+                    console.log(2);
                 }else{
                     $wrapDepth2.addClass('hide');
                 }
 
+                $wrapDepth2.find('button.btn-depth2').html('읍면동<span class="caret"></span>');
+
                 var centerCoord = $(this).data('centercoord');
                 panTo(centerCoord.x, centerCoord.y, centerCoord.level);
 
+            });
+        }
+
+        function initEventDepth2List() {
+
+            $wrapDepth2.find('ul.dropdown-menu li').on('click', function () {
+
+                var regionName = $(this).text().trim();
+                $wrapDepth2.find('ul.dropdown-menu li').each(function () {
+                    $(this).html('<a href="#">' + $(this).text() + '</a>');
+                });
+
+                $wrapDepth2.find('button.btn-depth2').html($(this).text() + '<span class="caret"></span>');
+
+                var data = {region: $(this).text()};
+                var depth1LiTempl = $.templates("#depth1Li");
+                var html = depth1LiTempl.render(data);
+                $(this).html(html);
+
+                var centerCoord = $(this).data('centercoord');
+                console.log(centerCoord);
+                panTo(centerCoord.x, centerCoord.y, centerCoord.level);
             });
         }
 
@@ -181,6 +199,7 @@ block pageScript
             getPolygonPath(NORTH, color.north);
         }
 
+        var polygons = [];
         function getPolygonPath(regionCoords, colorObj) {
             var polygonPath = [];
             for (var idx in regionCoords) {
@@ -188,11 +207,28 @@ block pageScript
                     var coordObj = regionCoords[idx].exterior[dataIdx];
                     polygonPath.push(new daum.maps.LatLng(coordObj.y, coordObj.x));
                 }
-                setPolygon(polygonPath, colorObj);
+
+                var polygon = new daum.maps.Polygon({
+                    path: polygonPath, // 그려질 다각형의 좌표 배열입니다
+                    strokeWeight: 1, // 선의 두께입니다
+                    strokeColor: colorObj.strokeColor, // 선의 색깔입니다
+                    strokeOpacity: 0.2, // 선의 불투명도 입니다 1에서 0 사이의 값이며 0에 가까울수록 투명합니다
+                    strokeStyle: 'solid', // 선의 스타일입니다
+                    fillColor: colorObj.fillColor, // 채우기 색깔입니다
+                    fillOpacity: 0.2 // 채우기 불투명도 입니다
+                });
+
+                // 지도에 다각형을 표시합니다
+                var emdName = regionCoords[idx].region
+                polygon.setMap(map);
+                polygons.push({emd: emdName, polygon: polygon});
+
                 polygonPath = [];
             }
         }
 
+
+        var polygons = [];
         function setPolygon(polygonPath, colorObj) {
             // 지도에 표시할 다각형을 생성합니다
             var polygon = new daum.maps.Polygon({
@@ -207,10 +243,12 @@ block pageScript
 
             // 지도에 다각형을 표시합니다
             polygon.setMap(map);
+            polygons.push({emd:'',polygon: polygon});
         }
 
         var northData = {
             fontColor: '#f9d400',
+            nameEng: 'north',
             name: '북부',
             btnClass: 'btn-default',
             centerCoord: {
@@ -220,6 +258,7 @@ block pageScript
         };
         var southData = {
             fontColor: '#f901e8',
+            nameEng: 'south',
             name: '남부',
             btnClass: 'btn-default',
             centerCoord: {
@@ -229,6 +268,7 @@ block pageScript
         };
         var eastData = {
             fontColor: '#00c451',
+            nameEng: 'east',
             name: '동부',
             btnClass: 'btn-default',
             centerCoord: {
@@ -238,6 +278,7 @@ block pageScript
         };
         var westhData = {
             fontColor: '#f26a02',
+            nameEng: 'west',
             name: '서부',
             btnClass: 'btn-default',
             centerCoord: {
@@ -262,6 +303,8 @@ block pageScript
             setRegionCustomOverlay(southContent, southPosition);
             setRegionCustomOverlay(eastContent, eastPosition);
             setRegionCustomOverlay(westContent, westPosition);
+
+            addEventOnRegionOverLay();
         }
 
 
@@ -278,8 +321,25 @@ block pageScript
             // 커스텀 오버레이를 지도에 표시합니다
             customOverlay.setMap(map);
             customOverlays.push(customOverlay);
+        }
 
-            $('.btn-region').on('click', function () {
+        function addEventOnRegionOverLay() {
+            $('.wrap-marker').on('click', function () {
+                refreshPolygons(polygons);
+
+                var regionName = $(this).data('region');
+                var regionNameEng = $(this).data('regioneng');
+                var coordX = $(this).data('xcoord');
+                var coordY = $(this).data('ycoord');
+
+                panTo(coordX, coordY, 8);
+                setEmdCustomOverlay(regionNameEng);
+
+                $wrapDepth1.find('ul.dropdown-menu li').each(function () {
+                    if ($(this).text().indexOf(regionName) != -1) {
+                        $(this).trigger('click');
+                    }
+                });
 
                 var data = {
                     region: $(this).data('region')
@@ -287,25 +347,75 @@ block pageScript
                 var graphModalTempl = $.templates("#graphModal");
                 var graphContent = graphModalTempl.render(data);
                 $modalContent.html(graphContent);
-            });
-
-            $('.wrap-marker').on('click', function () {
-                var regionName = $(this).data('region');
-                var coordX = $(this).data('xcoord');
-                var coordY = $(this).data('ycoord');
-                panTo(coordX, coordY, 8);
-
-                $wrapDepth1.find('ul.dropdown-menu li').each(function () {
-                   if($(this).text().indexOf(regionName) != -1){
-                       $(this).trigger('click');
-                       console.log($(this));
-                   }
-                });
 
                 for (var i = 0; i < customOverlays.length; i++) {
                     //customOverlays[i].setMap(null);
                 }
             });
+        }
+
+        var emdOverlays = [];
+        function setEmdCustomOverlay(regionNameEng) {
+            console.log(1);
+            var coordObj = eval('emdCoordList.'+regionNameEng);
+            if(emdOverlays.length > 0){
+                for (var i = 0; i < emdOverlays.length; i++) {
+                    emdOverlays[i].setMap(null);
+                }
+                emdOverlays = [];
+            }
+
+            var emdMarkerTempl = $.templates("#emdMarker");
+
+            for(var idx in coordObj){
+                var content = emdMarkerTempl.render(coordObj[idx]);
+                var position = new daum.maps.LatLng(coordObj[idx].centerCoord.y, coordObj[idx].centerCoord.x);
+
+                var emdOverlay = new daum.maps.CustomOverlay({
+                    position: position,
+                    content: content,
+                    xAnchor: 0.3,
+                    yAnchor: 0.91
+                });
+
+                emdOverlay.setMap(map);
+                emdOverlays.push(emdOverlay);
+            }
+
+            $('.emd-wrap').on('click', function () {
+                //refreshPolygons(polygons);
+                var regionName = $(this).data('region');
+                var regionNameEng = $(this).data('regioneng');
+                var coordX = $(this).data('xcoord');
+                var coordY = $(this).data('ycoord');
+
+                console.log(coordX, coordY);
+
+                $wrapDepth2.find('ul.dropdown-menu li').each(function () {
+                    if ($(this).text().indexOf(regionName) != -1) {
+                        $(this).trigger('click');
+                    }
+                });
+
+                panTo(coordX, coordY, 5);
+
+                for(var idx in polygons){
+                    if(regionName.trim() == polygons[idx].emd){
+                        polygons[idx].polygon.setOptions({
+                            strokeWeight: 3,
+                            strokeColor: '#000714',
+                            strokeOpacity: 0.5
+                        });
+                    }
+                }
+            });
+        }
+
+        function refreshPolygons(polygons) {
+            for(var idx in polygons){
+                polygons[idx].polygon.setMap(null);
+            }
+            printRegionPolygon();
         }
 
         function panTo(x, y, level) {

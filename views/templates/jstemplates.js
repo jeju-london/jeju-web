@@ -3,14 +3,23 @@
 </script>
 
 <script id="regionMarker" type="text/x-jsrender">
-    <div data-region="{{:name}}" data-xcoord="{{:centerCoord.x}}" data-ycoord="{{:centerCoord.y}}" class="wrap-marker" style="float:left">
+    <div data-region="{{:name}}" data-regioneng={{:nameEng}} data-xcoord="{{:centerCoord.x}}" data-ycoord="{{:centerCoord.y}}" class="region-marker wrap-marker" style="float:left" data-toggle="modal" data-target=".bs-example-modal-lg">
         <span class="bs-glyphicons">
             <span class="glyphicon glyphicon-map-marker" aria-hidden="true"></span>
         </span>
         <div class="maker-label" style="color:{{:fontColor}}"><span class="center">{{:name}}</span></div>
 
     </div>
-    <a style="position:absolute;left:35px;top:27px;" href="#" data-region="{{:name}}" class="btn {{:btnClass}} btn-region" data-toggle="modal" data-target=".bs-example-modal-lg" role="button">자세히보기</a>
+</script>
+
+<script id="emdMarker" type="text/x-jsrender">
+    <div data-region="{{:name}}" data-xcoord="{{:centerCoord.y}}" data-ycoord="{{:centerCoord.x}}" class="wrap-marker emd-wrap" style="float:left" data-toggle="modal" data-target=".bs-example-modal-lg">
+        <span class="bs-glyphicons">
+            <span class="glyphicon glyphicon-map-marker emd-marker" aria-hidden="true"></span>
+        </span>
+        <div class="maker-label emd-label" style="color:{{:fontColor}}"><span class="center">{{:name}}</span></div>
+
+    </div>
 </script>
 
 <script id="graphModal" type="text/x-jsrender">

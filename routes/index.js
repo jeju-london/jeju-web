@@ -5,13 +5,13 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  var page = 'login';
-  //var page = 'index';
+  //var page = 'login';
+  var page = 'index';
   if(req.isAuthenticated()){
       page = 'index';
   }
-  console.log('region:', csvtojsonjs.region);
-  res.render(page, { title: 'Jeju', regionlist: csvtojsonjs.region });
+  console.log('region:', csvtojsonjs.play_ground);
+  res.render(page, { title: 'Jeju', playGround: csvtojsonjs.play_ground });
 });
 
 router.post('/login', passport.authenticate('local', {

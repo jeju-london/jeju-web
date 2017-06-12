@@ -10,6 +10,7 @@ var passportjs = require('./routes/passport.js');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
+var api = require('./routes/api');
 
 var app = express();
 
@@ -29,6 +30,7 @@ app.use('/js', express.static(__dirname + '/node_modules/bootstrap/dist/js')); /
 app.use('/fonts', express.static(__dirname + '/node_modules/bootstrap/fonts')); // redirect bootstrap JS
 app.use('/js', express.static(__dirname + '/node_modules/jquery/dist')); // redirect JS jQuery
 app.use('/css', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootst
+app.use('/img', express.static(__dirname + '/node_modules/bootstrap/dist/css')); // redirect CSS bootst
 app.use(session({ secret: 'mundo', resave: true, saveUninitialized: false }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -36,6 +38,7 @@ passportjs();
 
 app.use('/', index);
 app.use('/users', users);
+app.use('/api', api);
 
 
 // catch 404 and forward to error handler

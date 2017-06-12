@@ -72,6 +72,8 @@
     -moz-osx-font-smoothing: grayscale;
 }
 
+
+
 .emd-label {
     font-size: 12px;
     padding: 0px 1px;
@@ -84,6 +86,7 @@
     color: white;
     position: relative;
     top: -5px;
+    padding: 0px 2px;
 }
 
 .maker-label .center {
@@ -106,6 +109,23 @@
     filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
     background-repeat: repeat-x;
     border-color: #e38d13;
+}
+
+.carousel-inner img {
+    width: 100%;
+}
+
+.col-lg-6 {
+    width: 50%;
+    float: left;
+}
+
+.row {
+    margin-bottom: 10px;
+}
+
+.chkbox {
+    width: 10px;
 }
 
 @media (min-width: 768px) {

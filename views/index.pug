@@ -8,6 +8,7 @@ block tab
 
 block content
   div(class="container" )
+    img(src='/images/signs.png')
 
     //ul
     //  each region in regionlist
@@ -31,23 +32,8 @@ block content
             li(data-region='west' data-centerCoord={x: 33.31711594804748, y: 126.24637996878465, level:8})
                 a(href="#") 서부
 
-            li(role="separator" class="divider")
-
-            li
-                a(href="#") 특성별
-            li(data-region='chinese')
-                a(href="#") 중국인 주요관광지
-            li(data-region='korean')
-                a(href="#") 내국인 주요관광지
-            li(data-region='businese')
-                a(href="#") 상업지
-            li(data-region='jejusi')
-                a(href="#") 제주시 구도심
-            li(data-region='sgpsi')
-                a(href="#") 서귀포시 구도심
-
     div(class="btn-group btn-emd hide")
-        button(type="button" class="btn btn-primary dropdown-toggle btn-depth2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") 읍면동
+        button(type="button" class="btn btn-primary dropdown-toggle btn-depth2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") 경기장
             span(class="caret")
         ul(class="dropdown-menu")
             li
@@ -76,6 +62,7 @@ block content
 block pageScript
     include templates/jstemplates.js
     include templates/mapCoord.js
+    include templates/propCoord.js
     include templates/emdList.js
 
     script.
@@ -119,6 +106,15 @@ block pageScript
                 var html = depth1LiTempl.render(data);
                 $(this).html(html);
 
+                if($(this).text().trim() == '특성별'){
+                    removePloygons();
+                    printPorpPolygon();
+                }
+                if ($(this).text().trim() == '지리별') {
+                    removePloygons();
+                    printRegionPolygon();
+                }
+
                 if($(this).text().trim() != '지리별' && $(this).text().trim() != '특성별'){
                     $wrapDepth2.removeClass('hide');
 
@@ -127,18 +123,16 @@ block pageScript
 
                     var html = '';
                     for(var idx in emdList){
-                        html = html+"<li data-centercoord='{\"x\":"+emdCoordList[0].centerCoord.y+",\"y\":"+emdCoordList[0].centerCoord.x+",\"level\":5}'><a href='#'>"+ emdList[idx] +"</a></li>";
+                        html = html+"<li data-centercoord='{\"x\":"+emdCoordList[idx].centerCoord.y+",\"y\":"+emdCoordList[idx].centerCoord.x+",\"level\":5}'><a href='#'>"+ emdList[idx] +"</a></li>";
                     }
                     $wrapDepth2.find('ul.dropdown-menu').html(html);
                     initEventDepth2List();
-                    console.log(0);
                     setEmdCustomOverlay(regionNameEng);
-                    console.log(2);
                 }else{
                     $wrapDepth2.addClass('hide');
                 }
 
-                $wrapDepth2.find('button.btn-depth2').html('읍면동<span class="caret"></span>');
+                $wrapDepth2.find('button.btn-depth2').html('경기장<span class="caret"></span>');
 
                 var centerCoord = $(this).data('centercoord');
                 panTo(centerCoord.x, centerCoord.y, centerCoord.level);
@@ -191,6 +185,15 @@ block pageScript
                 fillColor: '#ffff00'
             }
         };
+
+        function printPorpPolygon() {
+            getPolygonPath(CHINESE, color.east);
+            getPolygonPath(KOREAN, color.west);
+            getPolygonPath(BUSINESE, color.south);
+            getPolygonPath(JEJUSI, color.north);
+            getPolygonPath(SGPSI, color.north);
+        }
+
 
         function printRegionPolygon() {
             getPolygonPath(EAST, color.east);
@@ -304,118 +307,237 @@ block pageScript
             setRegionCustomOverlay(eastContent, eastPosition);
             setRegionCustomOverlay(westContent, westPosition);
 
-            addEventOnRegionOverLay();
+            //addEventOnRegionOverLay();
         }
 
 
         var customOverlays = [];
         function setRegionCustomOverlay(content, position) {
-            // 커스텀 오버레이를 생성합니다
+
             var customOverlay = new daum.maps.CustomOverlay({
                 position: position,
                 content: content,
                 xAnchor: 0.3,
                 yAnchor: 0.91
             });
-
-            // 커스텀 오버레이를 지도에 표시합니다
             customOverlay.setMap(map);
             customOverlays.push(customOverlay);
         }
 
-        function addEventOnRegionOverLay() {
-            $('.wrap-marker').on('click', function () {
-                refreshPolygons(polygons);
+        function showDetailOnRegion(el) {
+            var $el = $(el);
+            //refreshPolygons(polygons);
 
-                var regionName = $(this).data('region');
-                var regionNameEng = $(this).data('regioneng');
-                var coordX = $(this).data('xcoord');
-                var coordY = $(this).data('ycoord');
+            var regionName = $el.data('region');
+            var regionNameEng = $el.data('regioneng');
+            var coordX = $el.data('xcoord');
+            var coordY = $el.data('ycoord');
 
-                panTo(coordX, coordY, 8);
-                setEmdCustomOverlay(regionNameEng);
+            panTo(coordX, coordY, 8);
+            setEmdCustomOverlay(regionNameEng);
 
-                $wrapDepth1.find('ul.dropdown-menu li').each(function () {
-                    if ($(this).text().indexOf(regionName) != -1) {
-                        $(this).trigger('click');
-                    }
-                });
-
-                var data = {
-                    region: $(this).data('region')
-                };
-                var graphModalTempl = $.templates("#graphModal");
-                var graphContent = graphModalTempl.render(data);
-                $modalContent.html(graphContent);
-
-                for (var i = 0; i < customOverlays.length; i++) {
-                    //customOverlays[i].setMap(null);
+            $wrapDepth1.find('ul.dropdown-menu li').each(function () {
+                if ($(this).text().indexOf(regionName) != -1) {
+                    $(this).trigger('click');
                 }
             });
+
+            var data = {
+                region: regionName
+            };
+            var graphModalTempl = $.templates("#graphModal");
+            var graphContent = graphModalTempl.render(data);
+            $modalContent.html(graphContent);
+
+            for (var i = 0; i < customOverlays.length; i++) {
+                //customOverlays[i].setMap(null);
+            }
         }
 
         var emdOverlays = [];
+
         function setEmdCustomOverlay(regionNameEng) {
-            console.log(1);
-            var coordObj = eval('emdCoordList.'+regionNameEng);
-            if(emdOverlays.length > 0){
+
+            if (emdOverlays.length > 0) {
                 for (var i = 0; i < emdOverlays.length; i++) {
                     emdOverlays[i].setMap(null);
                 }
                 emdOverlays = [];
             }
 
+
+            var plagroundApi = 'http://localhost:3000/api/playGround';
+            var result = {};
             var emdMarkerTempl = $.templates("#emdMarker");
 
-            for(var idx in coordObj){
-                var content = emdMarkerTempl.render(coordObj[idx]);
-                var position = new daum.maps.LatLng(coordObj[idx].centerCoord.y, coordObj[idx].centerCoord.x);
+            $.ajax({
+                url: plagroundApi,
+                dataType: 'json',
+                success: function (data) {
+                    console.log('성공 - ', data.result);
+                    result = data.result;
+                },
+                error: function (xhr) {
+                    console.log('실패 - ', xhr);
+                }
+            }).done(function () {
+                console.log('done');
 
-                var emdOverlay = new daum.maps.CustomOverlay({
-                    position: position,
-                    content: content,
-                    xAnchor: 0.3,
-                    yAnchor: 0.91
-                });
+                var coordObj = result.play_ground;
 
-                emdOverlay.setMap(map);
-                emdOverlays.push(emdOverlay);
-            }
+                for (var idx in coordObj) {
+                    if(!isEmpty(coordObj[idx].y.trim()) && !isEmpty(coordObj[idx].x.trim())){
+                        console.log(coordObj[idx].x, coordObj[idx].y);
+                        var content = emdMarkerTempl.render(coordObj[idx]);
+                        var position = new daum.maps.LatLng(coordObj[idx].y, coordObj[idx].x);
 
-            $('.emd-wrap').on('click', function () {
-                //refreshPolygons(polygons);
-                var regionName = $(this).data('region');
-                var regionNameEng = $(this).data('regioneng');
-                var coordX = $(this).data('xcoord');
-                var coordY = $(this).data('ycoord');
-
-                console.log(coordX, coordY);
-
-                $wrapDepth2.find('ul.dropdown-menu li').each(function () {
-                    if ($(this).text().indexOf(regionName) != -1) {
-                        $(this).trigger('click');
-                    }
-                });
-
-                panTo(coordX, coordY, 5);
-
-                for(var idx in polygons){
-                    if(regionName.trim() == polygons[idx].emd){
-                        polygons[idx].polygon.setOptions({
-                            strokeWeight: 3,
-                            strokeColor: '#000714',
-                            strokeOpacity: 0.5
+                        var emdOverlay = new daum.maps.CustomOverlay({
+                            position: position,
+                            content: content,
+                            xAnchor: 0.0,
+                            yAnchor: 0.0
                         });
+
+                        emdOverlay.setMap(map);
+                        emdOverlays.push(emdOverlay);
                     }
                 }
+
+            });
+        }
+
+        var isEmpty = function (value) {
+            if (value == "" || value == null || value == undefined || ( value != null && typeof value == "object" && !Object.keys(value).length )) {
+                return true
+            } else {
+                return false
+            }
+        };
+
+        function showDetailOnEmd(el) {
+            var $el = $(el);
+            refreshPolygons(polygons);
+            var regionName = $el.data('region');
+            var regionNameEng = $el.data('regioneng');
+            var coordX = $el.data('xcoord');
+            var coordY = $el.data('ycoord');
+            var wx = $el.data('wx');
+            var wy = $el.data('wy');
+
+            var date = new Date();
+            var datetxt = date.yyyymmdd();
+
+
+            getWeather(wx, wy, function () {
+                getSchedule(regionName, datetxt, function () {
+                    printModal(regionName);
+                });
+            });
+
+
+            $wrapDepth2.find('ul.dropdown-menu li').each(function () {
+                if ($(this).text().indexOf(regionName) != -1) {
+                    $(this).trigger('click');
+                }
+            });
+
+            panTo(coordX, coordY, 5);
+
+            for (var idx in polygons) {
+                if (regionName.trim() == polygons[idx].emd) {
+                    polygons[idx].polygon.setOptions({
+                        strokeWeight: 3,
+                        strokeColor: '#000714',
+                        strokeOpacity: 0.5
+                    });
+                }
+            }
+
+        }
+
+        function printModal(stadium) {
+            var data = {
+                region: stadium,
+                schedule: schedule,
+                weather: weathers,
+                date: schedule[0].date.substring(4,6)+'/'+schedule[0].date.substring(6,8)+'/'+schedule[0].date.substring(0,4)
+            };
+
+            console.log(data);
+            var graphModalTempl = $.templates("#graphModal");
+            var graphContent = graphModalTempl.render(data);
+            $modalContent.html(graphContent);
+
+            $('#datetimepicker1').datepicker({
+                language: "kr",
+                todayHighlight: true
+            }).on('changeDate', function (e) {
+                console.log(e.date);
+                $('#datetimepicker1').datepicker('hide', '');
+                var date = new Date(e.date);
+                var datetxt = date.yyyymmdd();
+
+                getSchedule(stadium, datetxt, function () {
+                    printModal(stadium);
+                });
+
+                // `e` here contains the extra attributes
+            });
+        }
+
+        var weathers = [];
+        function getWeather(wx, wy, callback) {
+            var plagroundApi = 'http://localhost:3000/api/weather?wx='+wx+'&wy='+wy;
+            weathers = [];
+
+            $.ajax({
+                url: plagroundApi,
+                dataType: 'json',
+                success: function (data) {
+                    console.log('성공 - ', data.response);
+                    weathers = data.response.body.items.item;
+                },
+                error: function (xhr) {
+                    console.log('실패 - ', xhr);
+                }
+            }).done(function () {
+                console.log('done');
+                callback();
+            });
+        }
+
+
+        var schedule = [];
+        function getSchedule(stadium, date, callback) {
+            console.log('tests;',stadium, date);
+            var plagroundApi = 'http://localhost:3000/api/schedule?stadium=' + stadium + '&date=' + date;
+            console.log(plagroundApi);
+            schedule = [];
+
+            $.ajax({
+                url: plagroundApi,
+                dataType: 'json',
+                success: function (data) {
+                    console.log('성공 - ', data.result);
+                    schedule = data.result;
+                },
+                error: function (xhr) {
+                    console.log('실패 - ', xhr);
+                }
+            }).done(function () {
+                console.log('done');
+                callback();
             });
         }
 
         function refreshPolygons(polygons) {
-            for(var idx in polygons){
+            removePloygons();
+            printRegionPolygon();
+        }
+        function removePloygons() {
+            for (var idx in polygons) {
                 polygons[idx].polygon.setMap(null);
             }
-            printRegionPolygon();
         }
 
         function panTo(x, y, level) {
@@ -440,33 +562,33 @@ block pageScript
 
         });
 
+        Date.prototype.yyyymmdd = function () {
+            var mm = this.getMonth() + 1; // getMonth() is zero-based
+            var dd = this.getDate();
 
-        function getjsonp() {
-            var polygonPath = [];
-            var codeShapeApi = 'http://rapi.daum.net/regioncode/getBcodeShape.JSON?outputCoordSystem=WGS84&service=map.daum.net&callback=jeju&code=';
+            return [this.getFullYear(),
+                (mm > 9 ? '' : '0') + mm,
+                (dd > 9 ? '' : '0') + dd
+            ].join('');
+        };
 
+
+        function getjson() {
+            var plagroundApi = 'http://localhost:3000/api/playGround';
+            var result = {};
             $.ajax({
-                url: codeShapeApi + regionCode,
-                dataType: 'jsonp',
-                jsonpCallback: "jeju",
+                url: plagroundApi,
+                dataType: 'json',
                 success: function (data) {
-                    console.log('성공 - ', data);
-                    for (var idx in data) {
-                        if (idx == 1) {
-                            break;
-                        }
-                        for (var dataIdx in data[idx].exterior) {
-                            var coordObj = data[idx].exterior[dataIdx];
-                            polygonPath.push(new daum.maps.LatLng(coordObj.y, coordObj.x));
-                        }
-
-                    }
+                    console.log('성공 - ', data.result);
+                    result = data.result;
                 },
                 error: function (xhr) {
                     console.log('실패 - ', xhr);
                 }
             }).done(function () {
-                setPolygon(polygonPath);
+                console.log('done');
+                return result;
             });
         }
 

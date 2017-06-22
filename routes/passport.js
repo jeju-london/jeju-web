@@ -18,7 +18,7 @@ module.exports = function () {
             passReqToCallback : true
         }
         ,function(req,userid, password, done) {
-            if(userid=='hello@daum.net' && password=='1'){
+            if(userid=='hello@daum.net' && password=='hellohello'){
                 var user = { 'userid':'hello',
                     'email':'hello@world.com'};
                 return done(null,user);

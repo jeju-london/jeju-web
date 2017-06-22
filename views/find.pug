@@ -1,61 +1,62 @@
 extends layout
 
 block css
-  link(rel='stylesheet', href='/stylesheets/content.css')
+    link(rel='stylesheet', href='/stylesheets/content.css')
 
 block tab
-  include tab.pug
+    include tab.pug
 
 block content
-  div(class="container" )
-    //ul
-    //  each region in regionlist
-    //    li #{region.type}
+    div(class="container" )
 
-    div(class="btn-group wrap-depth1")
-        button(type="button" class="btn btn-primary btn-depth1 dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") 지리별
-            span(class="caret")
-        ul(class="dropdown-menu")
-            li(data-centerCoord={x:33.3823105, y:126.5332869, level:9})
-                a(href="#")
-                    strong 지리별
-                    span(class="glyphicon glyphicon-ok" aria-hidden="true")
+        //ul
+        //  each region in regionlist
+        //    li #{region.type}
 
-            li(data-region='north' data-centerCoord={x: 33.457543138530234, y: 126.52121318906023, level:8})
-                a(href="#") 북부
-            li(data-region='south' data-centerCoord={x: 33.31297232505243, y: 126.51478872617335, level:8})
-                a(href="#") 남부
-            li(data-region='east' data-centerCoord={x: 33.46986571255288, y: 126.81203766523701, level:8})
-                a(href="#") 동부
-            li(data-region='west' data-centerCoord={x: 33.31711594804748, y: 126.24637996878465, level:8})
-                a(href="#") 서부
+        div(class="btn-group wrap-depth1")
+            button(type="button" class="btn btn-primary btn-depth1 dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") 지리별
+                span(class="caret")
+            ul(class="dropdown-menu")
+                li(data-centerCoord={x:33.3823105, y:126.5332869, level:9})
+                    a(href="#")
+                        strong 지리별
+                        span(class="glyphicon glyphicon-ok" aria-hidden="true")
 
-    div(class="btn-group btn-emd hide")
-        button(type="button" class="btn btn-primary dropdown-toggle btn-depth2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") 경기장
-            span(class="caret")
-        ul(class="dropdown-menu")
-            li
-                a(href="#") 서호동
+                li(data-region='north' data-centerCoord={x: 33.457543138530234, y: 126.52121318906023, level:8})
+                    a(href="#") 북부
+                li(data-region='south' data-centerCoord={x: 33.31297232505243, y: 126.51478872617335, level:8})
+                    a(href="#") 남부
+                li(data-region='east' data-centerCoord={x: 33.46986571255288, y: 126.81203766523701, level:8})
+                    a(href="#") 동부
+                li(data-region='west' data-centerCoord={x: 33.31711594804748, y: 126.24637996878465, level:8})
+                    a(href="#") 서부
 
-    div(class="btn-group btn-test hide")
-        button(type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg") open layer
+        div(class="btn-group btn-emd hide")
+            button(type="button" class="btn btn-primary dropdown-toggle btn-depth2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false") 경기장
+                span(class="caret")
+            ul(class="dropdown-menu")
+                li
+                    a(href="#") 서호동
 
-    div(id="stadium" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel")
-        div(class="modal-dialog modal-lg" role="document")
-            div(class="modal-content")
-                div(class="modal-header")
-                    button(type="button" class="close" data-dismiss="modal" aria-label="Close")
-                        span(aria-hidden="true") &times;
-                    h4(class="modal-title") 제주 북부
+        div(class="btn-group btn-test hide")
+            button(type="button" class="btn btn-primary" data-toggle="modal" data-target=".bs-example-modal-lg") open layer
 
-                div(class="modal-body")
-                    p 그래프 영역
+        div(id="stadium" class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel")
+            div(class="modal-dialog modal-lg" role="document")
+                div(class="modal-content")
+                    div(class="modal-header")
+                        button(type="button" class="close" data-dismiss="modal" aria-label="Close")
+                            span(aria-hidden="true") &times;
+                        h4(class="modal-title") 제주 북부
 
-    div(id='result')
-    div(id="map")
+                    div(class="modal-body")
+                        p 그래프 영역
 
-    //form(class="form-signin" action="/logout" method="post")
-    //  button(class="btn btn-lg btn-primary btn-block" type="submit") Log Out
+        div(id='result')
+        div(id="map")
+
+        //form(class="form-signin" action="/logout" method="post")
+        //  button(class="btn btn-lg btn-primary btn-block" type="submit") Log Out
 
 block pageScript
     include templates/jstemplates.js
@@ -465,10 +466,10 @@ block pageScript
             var reservedDateT3h = [];
             var reservedDateWsd = [];
 
-            for(var idx in weathers){
+            for (var idx in weathers) {
                 var weather = weathers[idx];
-                if(reservedDate == weather.fcstDate){
-                    if(weather.category == 'SKY'){
+                if (reservedDate == weather.fcstDate) {
+                    if (weather.category == 'SKY') {
                         reservedDateSky.push(weather);
                     }
                     if (weather.category == 'POP') {
@@ -502,8 +503,6 @@ block pageScript
                 wsd: reservedDateWsd
             };
 
-            console.log('reservedDateWeathers:', reservedDateWeathers);
-
 
             var data = {
                 region: stadium,
@@ -513,7 +512,7 @@ block pageScript
             };
 
             console.log(data);
-            var graphModalTempl = $.templates("#graphModal");
+            var graphModalTempl = $.templates("#guestModal");
             var graphContent = graphModalTempl.render(data);
             $modalContent.html(graphContent);
 

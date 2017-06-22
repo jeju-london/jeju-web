@@ -11,9 +11,17 @@ nav.navbar.navbar-inverse.navbar-fixed-top
 
         div(id="navbar" class="navbar-collapse collapse" aria-expanded="false" style="height: 1px;")
             ul.nav.navbar-nav
-                li.active
-                    a(href="#") 축구장 예약
-                li
-                    a(href="#about") 축구팀 찾기
-                li
-                    a(href="#contact") Contact
+                case tab
+                    when 'index'
+                        li.active
+                            a(href="/") 축구장 예약
+                    default
+                        li
+                            a(href="/") 축구장 예약
+                case tab
+                    when 'find'
+                        li.active
+                            a(href="/find") 축구팀 찾기
+                    default
+                        li
+                            a(href="/find") 축구팀 찾기

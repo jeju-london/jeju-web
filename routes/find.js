@@ -5,13 +5,13 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-  var page = 'login';
-  //var page = 'index';
-  if(req.isAuthenticated()){
-      page = 'index';
-  }
-  console.log('region:', csvtojsonjs.play_ground);
-  res.render(page, { title: '축구할라봉', tab: 'index', playGround: csvtojsonjs.play_ground });
+    //var page = 'login';
+    var page = 'find';
+    if(req.isAuthenticated()){
+        page = 'find';
+    }
+    console.log('region:', csvtojsonjs.play_ground);
+    res.render(page, { title: 'Jeju', tab: 'find', playGround: csvtojsonjs.play_ground });
 });
 
 router.post('/login', passport.authenticate('local', {
